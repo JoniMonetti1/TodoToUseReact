@@ -1,7 +1,10 @@
 package com.example.todojustforfun.controllers;
 
+import com.example.todojustforfun.dto.TodoRequest;
+import com.example.todojustforfun.dto.TodoResponse;
 import com.example.todojustforfun.models.Todo;
 import com.example.todojustforfun.services.TodoService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -19,36 +22,36 @@ public class TodoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Todo>> getAllTodos(){
+    public ResponseEntity<List<TodoResponse>> getAllTodos(){
         return ResponseEntity.ok(todoService.getAllTodos());
     }
 
     @GetMapping("/title")
-    public ResponseEntity<List<Todo>> getAllTodosByTitle(@RequestParam String title){
+    public ResponseEntity<List<TodoResponse>> getAllTodosByTitle(@RequestParam String title){
         return ResponseEntity.ok(todoService.getAllTodosByTitle(title));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Todo> getTodoById(@PathVariable Long id){
-        return ResponseEntity.ok(todoService.getTodoById(id).orElseThrow());
+    public ResponseEntity<TodoResponse> getTodoById(@PathVariable Long id){
+        return ResponseEntity.ok(todoService.getTodoById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Todo> createTodo(@RequestBody Todo todo) {
-        Todo todoCreated = todoService.createTodo(todo);
+    public ResponseEntity<TodoResponse> createTodo(@Valid @RequestBody TodoRequest request) {
+        TodoResponse createdTodo = todoService.createTodo(request);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(todoCreated.getId())
+                .buildAndExpand(createdTodo.id())
                 .toUri();
 
-        return ResponseEntity.created(location).body(todoCreated);
+        return ResponseEntity.created(location).body(createdTodo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Todo> updateTodo(@PathVariable Long id, @RequestBody Todo todo) {
-        return ResponseEntity.ok(todoService.updateTodo(id, todo));
+    public ResponseEntity<TodoResponse> updateTodo(@PathVariable Long id, @RequestBody TodoRequest request) {
+        return ResponseEntity.ok(todoService.updateTodo(id, request));
     }
 
     @DeleteMapping("/{id}")
