@@ -12,6 +12,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/todos")
 public class TodoController {
@@ -26,7 +27,7 @@ public class TodoController {
         return ResponseEntity.ok(todoService.getAllTodos());
     }
 
-    @GetMapping("/title")
+    @GetMapping("/search")
     public ResponseEntity<List<TodoResponse>> getAllTodosByTitle(@RequestParam String title){
         return ResponseEntity.ok(todoService.getAllTodosByTitle(title));
     }
