@@ -25,6 +25,7 @@ public class TodoMapper {
         Todo todo = new Todo();
         todo.setTitle(request.title());
         todo.setDescription(request.description());
+        todo.setCompleted(false);
         return todo;
     }
 
@@ -40,6 +41,7 @@ public class TodoMapper {
                 todo.getId(),
                 todo.getTitle(),
                 todo.getDescription(),
+                todo.getCompleted(),
                 todo.getCreatedAt()
         );
     }

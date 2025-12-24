@@ -6,6 +6,7 @@ public record TodoResponse(
         Long id,
         String title,
         String description,
+        Boolean completed,
         Instant createdAt
 ) {
 }

@@ -26,6 +26,9 @@ public class Todo {
     @Column(nullable = true, length = 255)
     private String description;
 
+    @Column(nullable = false)
+    private Boolean completed = false;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Instant createdAt;

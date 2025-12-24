@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 @Service
-public class TodoServiceImpl implements TodoService{
+public class TodoServiceImpl implements TodoService {
 
     private final TodoRepository todoRepository;
     private final TodoMapper todoMapper;
@@ -34,6 +34,14 @@ public class TodoServiceImpl implements TodoService{
     @Override
     public List<TodoResponse> getAllTodosByTitle(String title) {
         return todoRepository.findByTitleIgnoreCaseContaining(title)
+                .stream()
+                .map(todoMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<TodoResponse> getAllTodosByCompleted(Boolean completed) {
+        return todoRepository.findAllByCompleted(completed)
                 .stream()
                 .map(todoMapper::toResponse)
                 .toList();
@@ -74,11 +82,26 @@ public class TodoServiceImpl implements TodoService{
 
     @Override
     @Transactional
+    public TodoResponse completeTodo(Long id) {
+        return todoRepository.findById(id)
+                .map(todo -> {
+                    var currentStatus = Boolean.TRUE.equals(todo.getCompleted());
+                    todo.setCompleted(!currentStatus);
+                    return todoRepository.save(todo);
+                })
+                .map(todoMapper::toResponse)
+                .orElseThrow(() -> new IllegalArgumentException("Todo not found with id: " + id));
+    }
+
+    @Override
+    @Transactional
     public void deleteTodoById(Long id) {
         todoRepository.findById(id)
                 .ifPresentOrElse(
                         todoRepository::delete,
-                        () -> {throw new IllegalArgumentException("Todo not found with id: " + id); }
+                        () -> {
+                            throw new IllegalArgumentException("Todo not found with id: " + id);
+                        }
                 );
     }
 

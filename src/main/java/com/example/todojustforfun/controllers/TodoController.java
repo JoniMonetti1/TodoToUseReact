@@ -2,7 +2,6 @@ package com.example.todojustforfun.controllers;
 
 import com.example.todojustforfun.dto.TodoRequest;
 import com.example.todojustforfun.dto.TodoResponse;
-import com.example.todojustforfun.models.Todo;
 import com.example.todojustforfun.services.TodoService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/todos")
 public class TodoController {
@@ -23,17 +21,22 @@ public class TodoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TodoResponse>> getAllTodos(){
+    public ResponseEntity<List<TodoResponse>> getAllTodos() {
         return ResponseEntity.ok(todoService.getAllTodos());
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<TodoResponse>> getAllTodosByTitle(@RequestParam String title){
+    public ResponseEntity<List<TodoResponse>> getAllTodosByTitle(@RequestParam String title) {
         return ResponseEntity.ok(todoService.getAllTodosByTitle(title));
     }
 
+    @GetMapping("/completed")
+    public ResponseEntity<List<TodoResponse>> getAllTodosByCompleted(@RequestParam Boolean completed) {
+        return ResponseEntity.ok(todoService.getAllTodosByCompleted(completed));
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<TodoResponse> getTodoById(@PathVariable Long id){
+    public ResponseEntity<TodoResponse> getTodoById(@PathVariable Long id) {
         return ResponseEntity.ok(todoService.getTodoById(id));
     }
 
@@ -53,6 +56,11 @@ public class TodoController {
     @PutMapping("/{id}")
     public ResponseEntity<TodoResponse> updateTodo(@PathVariable Long id, @RequestBody TodoRequest request) {
         return ResponseEntity.ok(todoService.updateTodo(id, request));
+    }
+
+    @PutMapping("/{id}/complete")
+    public ResponseEntity<TodoResponse> completeTodo(@PathVariable Long id) {
+        return ResponseEntity.ok(todoService.completeTodo(id));
     }
 
     @DeleteMapping("/{id}")
