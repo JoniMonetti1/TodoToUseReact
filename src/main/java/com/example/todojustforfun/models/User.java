@@ -10,30 +10,23 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.Instant;
 
 @Entity
-@Table(name = "todos")
+@Table(name = "users")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Todo {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 120)
-    private String title;
+    @Column(nullable = false, unique = true, length = 255)
+    private String email;
 
-    @Column(nullable = true, length = 255)
-    private String description;
-
-    @Column(nullable = false)
-    private Boolean completed = false;
+    @Column(name = "password_hash", nullable = false, length = 255)
+    private String passwordHash;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
-
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
 }
-
