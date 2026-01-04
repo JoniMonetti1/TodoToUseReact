@@ -56,8 +56,9 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     @Transactional
-    public TodoResponse createTodo(TodoRequest request) {
+    public TodoResponse createTodo(TodoRequest request, Long userId) {
         Todo todo = todoMapper.toEntity(request);
+        todo.setUserId(userId);
 
         return validateTodoData(todo)
                 .flatMap(this::checkTitleUniqueness)

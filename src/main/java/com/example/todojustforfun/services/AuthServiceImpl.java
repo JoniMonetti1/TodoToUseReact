@@ -12,6 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
@@ -25,16 +27,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserResponse login(LoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
+    public Authentication login(LoginRequest request) {
+        return authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        return new UserResponse(user.getId(), user.getEmail(), user.getCreatedAt());
     }
 
     @Override
@@ -52,21 +48,18 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserResponse getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+    public UserResponse getCurrentUser(Authentication authentication) {
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || Objects.equals(authentication.getPrincipal(), "anonymousUser")) {
             return null;
         }
 
         String email = authentication.getName();
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return new UserResponse(user.getId(), user.getEmail(), user.getCreatedAt());
-    }
-
-    @Override
-    public void logout() {
-        SecurityContextHolder.clearContext();
     }
 }

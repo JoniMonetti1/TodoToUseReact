@@ -14,7 +14,7 @@ public interface TodoService {
 
     TodoResponse getTodoById(Long id);
 
-    TodoResponse createTodo(TodoRequest request);
+    TodoResponse createTodo(TodoRequest request, Long userId);
 
     TodoResponse updateTodo(Long id, TodoRequest request);
 
