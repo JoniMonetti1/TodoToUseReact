@@ -9,6 +9,8 @@ import java.util.Optional;
 public interface TodoRepository extends JpaRepository<Todo, Long> {
     List<Todo> findByTitleIgnoreCaseContaining(String title);
 
+    List<Todo> findByUserIdAndTitleIgnoreCaseContaining(Long userId, String title);
+
     Optional<Todo> findByTitleIgnoreCase(String title);
 
     boolean existsByTitleIgnoreCase(String title);
@@ -16,4 +18,10 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     boolean existsByTitleIgnoreCaseAndIdNot(String title, Long id);
 
     List<Todo> findAllByCompleted(Boolean completed);
+
+    List<Todo> findAllByUserId(Long userId);
+
+    List<Todo> findAllByUserIdAndCompleted(Long userId, Boolean completed);
+
+    Optional<Todo> findByIdAndUserId(Long id, Long userId);
 }

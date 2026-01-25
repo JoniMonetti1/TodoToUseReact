@@ -26,23 +26,27 @@ public class TodoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TodoResponse>> getAllTodos() {
-        return ResponseEntity.ok(todoService.getAllTodos());
+    public ResponseEntity<List<TodoResponse>> getAllTodos(Authentication authentication) {
+        UserResponse currentUser = authService.getCurrentUser(authentication);
+        return ResponseEntity.ok(todoService.getAllTodos(currentUser.id()));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<TodoResponse>> getAllTodosByTitle(@RequestParam String title) {
-        return ResponseEntity.ok(todoService.getAllTodosByTitle(title));
+    public ResponseEntity<List<TodoResponse>> getAllTodosByTitle(@RequestParam String title, Authentication authentication) {
+        UserResponse currentUser = authService.getCurrentUser(authentication);
+        return ResponseEntity.ok(todoService.getAllTodosByTitle(title, currentUser.id()));
     }
 
     @GetMapping("/completed")
-    public ResponseEntity<List<TodoResponse>> getAllTodosByCompleted(@RequestParam Boolean completed) {
-        return ResponseEntity.ok(todoService.getAllTodosByCompleted(completed));
+    public ResponseEntity<List<TodoResponse>> getAllTodosByCompleted(@RequestParam Boolean completed, Authentication authentication) {
+        UserResponse currentUser = authService.getCurrentUser(authentication);
+        return ResponseEntity.ok(todoService.getAllTodosByCompleted(completed, currentUser.id()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TodoResponse> getTodoById(@PathVariable Long id) {
-        return ResponseEntity.ok(todoService.getTodoById(id));
+    public ResponseEntity<TodoResponse> getTodoById(@PathVariable Long id, Authentication authentication) {
+        UserResponse currentUser = authService.getCurrentUser(authentication);
+        return ResponseEntity.ok(todoService.getTodoById(id, currentUser.id()));
     }
 
     @PostMapping
@@ -60,18 +64,21 @@ public class TodoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TodoResponse> updateTodo(@PathVariable Long id, @RequestBody TodoRequest request) {
-        return ResponseEntity.ok(todoService.updateTodo(id, request));
+    public ResponseEntity<TodoResponse> updateTodo(@PathVariable Long id, @RequestBody TodoRequest request, Authentication authentication) {
+        UserResponse currentUser = authService.getCurrentUser(authentication);
+        return ResponseEntity.ok(todoService.updateTodo(id, currentUser.id(), request));
     }
 
     @PutMapping("/{id}/complete")
-    public ResponseEntity<TodoResponse> completeTodo(@PathVariable Long id) {
-        return ResponseEntity.ok(todoService.completeTodo(id));
+    public ResponseEntity<TodoResponse> completeTodo(@PathVariable Long id, Authentication authentication) {
+        UserResponse currentUser = authService.getCurrentUser(authentication);
+        return ResponseEntity.ok(todoService.completeTodo(id, currentUser.id()));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTodoById(@PathVariable Long id) {
-        todoService.deleteTodoById(id);
+    public ResponseEntity<Void> deleteTodoById(@PathVariable Long id, Authentication authentication) {
+        UserResponse currentUser = authService.getCurrentUser(authentication);
+        todoService.deleteTodoById(id, currentUser.id());
         return ResponseEntity.noContent().build();
     }
 }

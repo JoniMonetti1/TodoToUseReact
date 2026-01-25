@@ -5,8 +5,10 @@ import com.example.todojustforfun.dto.TodoResponse;
 import com.example.todojustforfun.mapper.TodoMapper;
 import com.example.todojustforfun.models.Todo;
 import com.example.todojustforfun.repositories.TodoRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -26,34 +28,34 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public List<TodoResponse> getAllTodos() {
-        return todoRepository.findAll()
+    public List<TodoResponse> getAllTodos(Long userId) {
+        return todoRepository.findAllByUserId(userId)
                 .stream()
                 .map(todoMapper::toResponse)
                 .toList();
     }
 
     @Override
-    public List<TodoResponse> getAllTodosByTitle(String title) {
-        return todoRepository.findByTitleIgnoreCaseContaining(title)
+    public List<TodoResponse> getAllTodosByTitle(String title, Long userId) {
+        return todoRepository.findByUserIdAndTitleIgnoreCaseContaining(userId, title)
                 .stream()
                 .map(todoMapper::toResponse)
                 .toList();
     }
 
     @Override
-    public List<TodoResponse> getAllTodosByCompleted(Boolean completed) {
-        return todoRepository.findAllByCompleted(completed)
+    public List<TodoResponse> getAllTodosByCompleted(Boolean completed, Long userId) {
+        return todoRepository.findAllByUserIdAndCompleted(userId, completed)
                 .stream()
                 .map(todoMapper::toResponse)
                 .toList();
     }
 
     @Override
-    public TodoResponse getTodoById(Long id) {
-        return todoRepository.findById(id)
+    public TodoResponse getTodoById(Long id, Long userId) {
+        return todoRepository.findByIdAndUserId(id, userId)
                 .map(todoMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Todo not found with id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Todo not found with id: " + id));
     }
 
     @Override
@@ -71,41 +73,40 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     @Transactional
-    public TodoResponse updateTodo(Long id, TodoRequest request) {
+    public TodoResponse updateTodo(Long id, Long userId, TodoRequest request) {
         Todo todoDetails = todoMapper.toEntity(request);
 
-        return todoRepository.findById(id)
-                .flatMap(existingTodo -> validateTodoData(todoDetails)
-                        .flatMap(validated -> checkTitleUniquenesForUpdate(validated, id))
-                        .map(validated -> updateTodoFields(existingTodo, validated)))
+        Todo existingTodo = todoRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Todo not found with id: " + id));
+
+        return validateTodoData(todoDetails)
+                .flatMap(validated -> checkTitleUniquenesForUpdate(validated, id))
+                .map(validated -> updateTodoFields(existingTodo, validated))
                 .map(todoRepository::save)
                 .map(todoMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Todo not found or invalid data"));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid todo data"));
     }
 
     @Override
     @Transactional
-    public TodoResponse completeTodo(Long id) {
-        return todoRepository.findById(id)
+    public TodoResponse completeTodo(Long id, Long userId) {
+        return todoRepository.findByIdAndUserId(id, userId)
                 .map(todo -> {
                     var currentStatus = Boolean.TRUE.equals(todo.getCompleted());
                     todo.setCompleted(!currentStatus);
                     return todoRepository.save(todo);
                 })
                 .map(todoMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Todo not found with id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Todo not found with id: " + id));
     }
 
     @Override
     @Transactional
-    public void deleteTodoById(Long id) {
-        todoRepository.findById(id)
-                .ifPresentOrElse(
-                        todoRepository::delete,
-                        () -> {
-                            throw new IllegalArgumentException("Todo not found with id: " + id);
-                        }
-                );
+    public void deleteTodoById(Long id, Long userId) {
+        Todo todo = todoRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Todo not found with id: " + id));
+
+        todoRepository.delete(todo);
     }
 
     private Optional<Todo> validateTodoData(Todo todo) {
