@@ -28,7 +28,7 @@ public class GroupServiceImpl implements GroupService {
     @Transactional
     public Group createGroup(String name, Long ownerId) {
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Group name is required");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Group name is required");
         }
 
         Group group = new Group();
