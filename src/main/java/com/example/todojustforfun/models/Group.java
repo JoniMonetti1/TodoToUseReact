@@ -28,6 +28,12 @@ public class Group {
     @Column(nullable = false, length = 120)
     private String name;
 
+    @Column(name = "owner_id", nullable = false)
+    private Long ownerId;
+
+    @Column(name = "join_code", nullable = false, length = 20, unique = true)
+    private String joinCode;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

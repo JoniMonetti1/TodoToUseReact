@@ -3,6 +3,9 @@ package com.example.todojustforfun.controllers;
 import com.example.todojustforfun.dto.TodoRequest;
 import com.example.todojustforfun.models.Todo;
 import com.example.todojustforfun.models.User;
+import com.example.todojustforfun.repositories.GroupMemberRepository;
+import com.example.todojustforfun.repositories.GroupRepository;
+import com.example.todojustforfun.repositories.GroupTodoShareRepository;
 import com.example.todojustforfun.repositories.TodoRepository;
 import com.example.todojustforfun.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,10 +34,22 @@ class TodoOwnershipControllerTest {
     @Autowired
     private TodoRepository todoRepository;
 
+    @Autowired
+    private GroupTodoShareRepository groupTodoShareRepository;
+
+    @Autowired
+    private GroupMemberRepository groupMemberRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
+
     private Todo ownerTodo;
 
     @BeforeEach
     void setUp() {
+        groupTodoShareRepository.deleteAll();
+        groupMemberRepository.deleteAll();
+        groupRepository.deleteAll();
         todoRepository.deleteAll();
         userRepository.deleteAll();
 
