@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "todos")
@@ -33,7 +34,9 @@ public class Todo {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "due_date", nullable = true)
+    private OffsetDateTime dueDate;
+
     @Column(name = "user_id", nullable = false)
     private Long userId;
 }
-

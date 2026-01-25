@@ -8,6 +8,8 @@ import com.example.todojustforfun.repositories.TodoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -109,9 +111,17 @@ public class TodoServiceImpl implements TodoService {
     private Optional<Todo> validateTodoData(Todo todo) {
         Predicate<Todo> hasTitle = t -> t.getTitle() != null && !t.getTitle().trim().isEmpty();
         Predicate<Todo> hasDescription = t -> t.getDescription() != null && !t.getDescription().trim().isEmpty();
+        Predicate<Todo> dueDateNotPast = t -> {
+            if (t.getDueDate() == null) {
+                return true;
+            }
+            Instant now = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+            Instant dueInstant = t.getDueDate().toInstant().truncatedTo(ChronoUnit.SECONDS);
+            return !dueInstant.isBefore(now);
+        };
 
         return Optional.of(todo)
-                .filter(hasTitle.and(hasDescription));
+                .filter(hasTitle.and(hasDescription).and(dueDateNotPast));
     }
 
     private Optional<Todo> checkTitleUniqueness(Todo todo) {
@@ -130,6 +140,7 @@ public class TodoServiceImpl implements TodoService {
     private Todo updateTodoFields(Todo existing, Todo updated) {
         existing.setTitle(updated.getTitle());
         existing.setDescription(updated.getDescription());
+        existing.setDueDate(updated.getDueDate());
         return existing;
     }
 }
